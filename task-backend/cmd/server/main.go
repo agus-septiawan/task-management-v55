@@ -59,12 +59,12 @@ func main() {
 	adminHandler := handler.NewAdminHandler(userService)
 
 	// Setup routes
-	handler := router.SetupRoutes(authHandler, oauthHandler, taskHandler, adminHandler, jwtManager)
+	routerHandler := router.SetupRoutes(authHandler, oauthHandler, taskHandler, adminHandler, jwtManager)
 
 	// Start server
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	log.Printf("Server starting on: %s", addr)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	if err := http.ListenAndServe(addr, routerHandler); err != nil {
 		log.Fatal("Server failed to start: ", err)
 	}
 }
