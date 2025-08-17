@@ -18,18 +18,12 @@
           </svg>
         </div>
 
-        <div v-else class="mx-auto h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-
         <h2 class="mt-6 text-center text-2xl font-extrabold text-gray-900">
-          {{ loading ? 'Processing...' : error ? 'Authentication Failed' : 'Success!' }}
+          {{ loading ? 'Processing...' : 'Authentication Failed' }}
         </h2>
 
         <p class="mt-2 text-center text-sm text-gray-600">
-          {{ loading ? 'Please wait while we complete your authentication.' : error ? error : 'Redirecting to dashboard...' }}
+          {{ loading ? 'Please wait while we complete your authentication.' : error }}
         </p>
 
         <div v-if="error" class="mt-6">
@@ -58,27 +52,27 @@ const error = ref('');
 onMounted(async () => {
   try {
     const token = route.query.token as string;
-    const success = route.query.success as string;
+    const successQuery = route.query.success as string;
 
-    if (!token || success !== 'true') {
-      throw new Error('Authentication failed or missing token');
+    if (!token || successQuery !== 'true') {
+      throw new Error('Authentication failed: Invalid callback parameters.');
     }
 
     // Store the token directly (it comes from backend redirect)
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
 
     // Initialize auth state (this will fetch user profile)
-    initAuth();
+    const authSuccessful = await initAuth();
 
-    // Wait a moment for auth to initialize, then redirect
-    setTimeout(() => {
+    if (authSuccessful) {
       router.push('/dashboard');
-    }, 1500);
+    } else {
+      throw new Error('Authentication failed: Could not retrieve user profile.');
+    }
 
   } catch (err) {
     console.error('OAuth callback error:', err);
-    error.value = err instanceof Error ? err.message : 'Authentication failed';
-  } finally {
+    error.value = err instanceof Error ? err.message : 'An unknown error occurred during authentication.';
     loading.value = false;
   }
 });
