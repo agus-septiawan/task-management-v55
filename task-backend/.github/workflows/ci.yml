@@ -1,0 +1,36 @@
+name: Go CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      # Langkah 1: Mengambil kode dari repository
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Langkah 2: Menyiapkan lingkungan Go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      # Langkah 3: Mengunduh semua dependency yang dibutuhkan
+      - name: Install Dependencies
+        run: go mod download
+
+      # Langkah 4: Menjalankan semua unit test
+      - name: Run Unit Tests
+        run: go test -v ./tests/...
+
+      # Langkah 5: Mem-build aplikasi untuk memastikan kode bisa dikompilasi
+      - name: Build Application
+        run: go build -v ./cmd/server/main.go

@@ -1,0 +1,164 @@
+### Task Management API - Task Endpoints
+### Base URL: http://localhost:8080
+
+### Create Task
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "title": "Complete project documentation",
+  "description": "Write comprehensive documentation for the task management API",
+  "status": "pending"
+}
+
+###
+
+### Create Task - Minimal (only title required)
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "title": "Review code changes"
+}
+
+###
+
+### Get All Tasks (User sees only their tasks, Admin sees all)
+GET http://localhost:8080/api/v1/tasks
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Tasks with Pagination
+GET http://localhost:8080/api/v1/tasks?page=1&limit=5
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Tasks with Status Filter
+GET http://localhost:8080/api/v1/tasks?status=pending
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Tasks with Search
+GET http://localhost:8080/api/v1/tasks?search=documentation
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Tasks with Multiple Filters
+GET http://localhost:8080/api/v1/tasks?page=1&limit=10&status=in_progress&search=project
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Task by ID
+GET http://localhost:8080/api/v1/tasks/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Update Task - Full Update
+PUT http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "title": "Updated task title",
+  "description": "Updated description with more details",
+  "status": "in_progress"
+}
+
+###
+
+### Update Task - Partial Update (only status)
+PUT http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "status": "completed"
+}
+
+###
+
+### Update Task - Partial Update (only title)
+PUT http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "title": "New task title"
+}
+
+###
+
+### Delete Task
+DELETE http://localhost:8080/api/v1/tasks/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Test Invalid Task Creation - Missing Title
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "description": "Task without title"
+}
+
+###
+
+### Test Invalid Task Creation - Invalid Status
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "title": "Test task",
+  "status": "invalid_status"
+}
+
+###
+
+### Test Unauthorized Access - No Token
+GET http://localhost:8080/api/v1/tasks
+
+###
+
+### Test Invalid Token
+GET http://localhost:8080/api/v1/tasks
+Authorization: Bearer invalid-token
+
+###
+
+### Test Access Other User's Task (should fail for non-admin)
+GET http://localhost:8080/api/v1/tasks/999
+Authorization: Bearer USER_ACCESS_TOKEN_HERE
+
+###
+
+### Admin - Get All Tasks
+GET http://localhost:8080/api/v1/tasks
+Authorization: Bearer ADMIN_ACCESS_TOKEN_HERE
+
+###
+
+### Admin - Update Any Task
+PUT http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+Authorization: Bearer ADMIN_ACCESS_TOKEN_HERE
+
+{
+  "status": "completed"
+}
+
+###
+
+### Admin - Delete Any Task
+DELETE http://localhost:8080/api/v1/tasks/1
+Authorization: Bearer ADMIN_ACCESS_TOKEN_HERE

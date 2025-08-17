@@ -1,0 +1,56 @@
+### Task Management API - OAuth Endpoints with Variables
+### Base URL: http://localhost:8080
+
+### Variables
+@baseUrl = http://localhost:8080
+
+### Google OAuth - Redirect to Google
+### This will redirect to Google OAuth consent screen
+GET {{baseUrl}}/api/v1/auth/oauth/google
+
+###
+
+### Google OAuth Callback - Manual Test (Auto-save token)
+### Note: This is typically called by Google after user consent
+### You would get the code and state from the redirect URL
+# @name oauthCallback
+GET {{baseUrl}}/api/v1/auth/oauth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE&state=SECURE_STATE_VALUE
+
+### Extract OAuth token from callback response
+@oauthToken = {{oauthCallback.response.body.access_token}}
+@oauthRefreshToken = {{oauthCallback.response.body.refresh_token}}
+
+###
+
+### Test OAuth Callback - Missing Parameters
+GET {{baseUrl}}/api/v1/auth/oauth/google/callback
+
+###
+
+### Test OAuth Callback - Invalid State
+GET {{baseUrl}}/api/v1/auth/oauth/google/callback?code=test_code&state=invalid_state
+
+###
+
+### After OAuth Login - Get Profile (uses auto-saved OAuth token)
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{oauthToken}}
+
+###
+
+### OAuth User - Get Tasks (uses auto-saved OAuth token)
+### OAuth users can access protected endpoints like regular users
+GET {{baseUrl}}/api/v1/tasks
+Authorization: Bearer {{oauthToken}}
+
+###
+
+### OAuth User - Create Task (uses auto-saved OAuth token)
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{oauthToken}}
+
+{
+  "title": "Task created by OAuth user",
+  "description": "This task was created by a user who logged in via Google OAuth"
+}

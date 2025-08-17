@@ -1,0 +1,23 @@
+# config.yaml example
+server:
+  port:
+  host:
+
+database:
+  host:
+  port:
+  name:
+  user:
+  password:
+
+jwt:
+  access_secret:
+  refresh_secret:
+  access_expire:
+  refresh_expire:
+
+oauth:
+  google:
+    client_id:
+    client_secret:
+    redirect_url:

@@ -1,0 +1,410 @@
+### Task Management API - Complete Testing Suite
+### All endpoints in one file for shared variables
+### Base URL: http://localhost:8080
+
+### ===========================================
+### VARIABLES SECTION
+### ===========================================
+@baseUrl = http://localhost:8080
+@userEmail = john@example.com
+@userPassword = password123
+@adminEmail = admin@example.com
+@adminPassword = admin123
+
+### ===========================================
+### STEP 1: HEALTH & SETUP
+### ===========================================
+
+### 1.1 Health Check
+GET {{baseUrl}}/health
+
+###
+
+### ===========================================
+### STEP 2: USER REGISTRATION
+### ===========================================
+
+### 2.1 Register User
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+###
+
+### 2.2 Register Admin User
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+###
+
+### ===========================================
+### STEP 3: AUTHENTICATION & TOKEN EXTRACTION
+### ===========================================
+
+### 3.1 Login User (Auto-save token)
+# @name userLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+### Extract user tokens
+@userToken = {{userLogin.response.body.access_token}}
+@userRefreshToken = {{userLogin.response.body.refresh_token}}
+
+###
+
+### 3.2 Login Admin (Auto-save token)
+# @name adminLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Extract admin tokens
+@adminToken = {{adminLogin.response.body.access_token}}
+@adminRefreshToken = {{adminLogin.response.body.refresh_token}}
+
+###
+
+### ===========================================
+### STEP 4: AUTH ENDPOINT TESTING
+### ===========================================
+
+### 4.1 Get User Profile
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{userToken}}
+
+###
+
+### 4.2 Get Admin Profile
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 4.3 Refresh User Token
+# @name refreshUserToken
+POST {{baseUrl}}/api/v1/auth/refresh
+Cookie: refresh_token={{userRefreshToken}}
+
+### Update user token from refresh
+@userToken = {{refreshUserToken.response.body.access_token}}
+
+###
+
+### 4.4 Get All Users (Admin Only)
+GET {{baseUrl}}/api/v1/admin/users
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 4.5 Get Users with Pagination (Admin Only)
+GET {{baseUrl}}/api/v1/admin/users?page=1&limit=5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ===========================================
+### STEP 5: OAUTH TESTING (OPTIONAL)
+### ===========================================
+
+### 5.1 Google OAuth - Redirect to Google
+GET {{baseUrl}}/api/v1/auth/oauth/google
+
+###
+
+### 5.2 Google OAuth Callback (Auto-save token)
+# @name oauthCallback
+GET {{baseUrl}}/api/v1/auth/oauth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE&state=SECURE_STATE_VALUE
+
+### Extract OAuth token
+@oauthToken = {{oauthCallback.response.body.access_token}}
+
+###
+
+### 5.3 OAuth User Profile
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{oauthToken}}
+
+###
+
+### ===========================================
+### STEP 6: TASK MANAGEMENT - USER OPERATIONS
+### ===========================================
+
+### 6.1 Create Task (User)
+# @name createUserTask
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "title": "Complete project documentation",
+  "description": "Write comprehensive documentation for the task management API",
+  "status": "pending"
+}
+
+### Extract created task ID
+@userTaskId = {{createUserTask.response.body.id}}
+
+###
+
+### 6.2 Create Task - Minimal (User)
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "title": "Review code changes"
+}
+
+###
+
+### 6.3 Get All User Tasks
+GET {{baseUrl}}/api/v1/tasks
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.4 Get Tasks with Pagination
+GET {{baseUrl}}/api/v1/tasks?page=1&limit=5
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.5 Get Tasks with Status Filter
+GET {{baseUrl}}/api/v1/tasks?status=pending
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.6 Get Tasks with Search
+GET {{baseUrl}}/api/v1/tasks?search=documentation
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.7 Get Tasks with Multiple Filters
+GET {{baseUrl}}/api/v1/tasks?page=1&limit=10&status=in_progress&search=project
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.8 Get Task by ID (Auto-saved ID)
+GET {{baseUrl}}/api/v1/tasks/{{userTaskId}}
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.9 Get Task by ID (Manual ID)
+GET {{baseUrl}}/api/v1/tasks/1
+Authorization: Bearer {{userToken}}
+
+###
+
+### 6.10 Update Task - Full Update
+PUT {{baseUrl}}/api/v1/tasks/{{userTaskId}}
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "title": "Updated task title",
+  "description": "Updated description with more details",
+  "status": "in_progress"
+}
+
+###
+
+### 6.11 Update Task - Partial Update (Status only)
+PUT {{baseUrl}}/api/v1/tasks/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "status": "completed"
+}
+
+###
+
+### 6.12 Delete Task (Manual ID for safety)
+DELETE {{baseUrl}}/api/v1/tasks/1
+Authorization: Bearer {{userToken}}
+
+###
+
+### ===========================================
+### STEP 7: TASK MANAGEMENT - ADMIN OPERATIONS
+### ===========================================
+
+### 7.1 Admin - Get All Tasks (sees all users' tasks)
+GET {{baseUrl}}/api/v1/tasks
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 7.2 Admin - Create Task
+# @name createAdminTask
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "Admin Task",
+  "description": "Task created by admin user"
+}
+
+### Extract admin task ID
+@adminTaskId = {{createAdminTask.response.body.id}}
+
+###
+
+### 7.3 Admin - Update Any Task
+PUT {{baseUrl}}/api/v1/tasks/{{adminTaskId}}
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "completed"
+}
+
+###
+
+### 7.4 Admin - Delete Any Task (Manual ID for safety)
+DELETE {{baseUrl}}/api/v1/tasks/2
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ===========================================
+### STEP 8: OAUTH TASK OPERATIONS
+### ===========================================
+
+### 8.1 OAuth User - Create Task
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{oauthToken}}
+
+{
+  "title": "OAuth Task",
+  "description": "Task created by OAuth authenticated user"
+}
+
+###
+
+### 8.2 OAuth User - Get Tasks
+GET {{baseUrl}}/api/v1/tasks
+Authorization: Bearer {{oauthToken}}
+
+###
+
+### ===========================================
+### STEP 9: ERROR TESTING
+### ===========================================
+
+### 9.1 Invalid Registration - Missing Fields
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###
+
+### 9.2 Invalid Login - Wrong Credentials
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+###
+
+### 9.3 Unauthorized Access - No Token
+GET {{baseUrl}}/api/v1/auth/me
+
+###
+
+### 9.4 Invalid Token
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer invalid-token
+
+###
+
+### 9.5 Admin Access with User Token
+GET {{baseUrl}}/api/v1/admin/users
+Authorization: Bearer {{userToken}}
+
+###
+
+### 9.6 Invalid Task Creation - Missing Title
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "description": "Task without title"
+}
+
+###
+
+### 9.7 Invalid Task Creation - Invalid Status
+POST {{baseUrl}}/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "title": "Test task",
+  "status": "invalid_status"
+}
+
+###
+
+### 9.8 Unauthorized Task Access - No Token
+GET {{baseUrl}}/api/v1/tasks
+
+###
+
+### 9.9 Access Other User's Task (should fail for non-admin)
+GET {{baseUrl}}/api/v1/tasks/999
+Authorization: Bearer {{userToken}}
+
+###
+
+### ===========================================
+### STEP 10: CLEANUP
+### ===========================================
+
+### 10.1 Logout User
+POST {{baseUrl}}/api/v1/auth/logout
+Authorization: Bearer {{userToken}}
+
+###
+
+### 10.2 Logout Admin
+POST {{baseUrl}}/api/v1/auth/logout
+Authorization: Bearer {{adminToken}}
+
+###

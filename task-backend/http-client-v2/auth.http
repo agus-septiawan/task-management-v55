@@ -1,0 +1,154 @@
+### Task Management API - Authentication Endpoints with Variables
+### Base URL: http://localhost:8080
+
+### Variables
+@baseUrl = http://localhost:8080
+@userEmail = john@example.com
+@userPassword = password123
+@adminEmail = admin@example.com
+@adminPassword = admin123
+
+### Health Check
+GET {{baseUrl}}/health
+
+###
+
+### Register User
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+###
+
+### Register Admin User
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+###
+
+### Login User (Auto-save token)
+# @name userLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+### Extract user token from login response
+@userToken = {{userLogin.response.body.access_token}}
+@userRefreshToken = {{userLogin.response.body.refresh_token}}
+
+###
+
+### Login Admin (Auto-save token)
+# @name adminLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Extract admin token from login response
+@adminToken = {{adminLogin.response.body.data.access_token}}
+@adminRefreshToken = {{adminLogin.response.body.data.refresh_token}}
+
+###
+
+### Get User Profile (uses auto-saved user token)
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{userToken}}
+
+###
+
+### Refresh Token (extract from login response)
+POST {{baseUrl}}/api/v1/auth/refresh
+Cookie: refresh_token={{userRefreshToken}}
+
+###
+
+### Logout
+POST {{baseUrl}}/api/v1/auth/logout
+
+###
+
+### Get All Users (uses auto-saved admin token)
+GET {{baseUrl}}/api/v1/admin/users
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get All Users with Pagination (uses auto-saved admin token)
+GET {{baseUrl}}/api/v1/admin/users?page=1&limit=5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Google OAuth Login - Step 1: Redirect to Google
+### This will redirect you to Google OAuth consent screen
+### Copy the URL and open in browser, then copy the callback URL
+GET {{baseUrl}}/api/v1/auth/oauth/google
+
+###
+
+### Google OAuth Callback - Step 2: Handle callback
+### Replace with actual code and state from Google callback
+# @name oauthCallback
+GET {{baseUrl}}/api/v1/auth/oauth/google/callback?code=GOOGLE_AUTH_CODE&state=SECURE_STATE
+
+### Extract OAuth token from callback response
+@oauthToken = {{oauthCallback.response.body.access_token}}
+
+###
+
+### Test Invalid Registration - Missing Fields
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###
+
+### Test Invalid Login - Wrong Credentials
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+###
+
+### Test Unauthorized Access
+GET {{baseUrl}}/api/v1/auth/me
+
+###
+
+### Test Invalid Token
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer invalid-token
+
+###
+
+### Test Admin Access with User Token
+GET {{baseUrl}}/api/v1/admin/users
+Authorization: Bearer {{userToken}}

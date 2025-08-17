@@ -1,0 +1,49 @@
+### Task Management API - OAuth Endpoints
+### Base URL: http://localhost:8080
+
+### Google OAuth - Redirect to Google
+### This will redirect to Google OAuth consent screen
+GET http://localhost:8080/api/v1/auth/oauth/google
+
+###
+
+### Google OAuth Callback - Manual Test
+### Note: This is typically called by Google after user consent
+### You would get the code and state from the redirect URL
+GET http://localhost:8080/api/v1/auth/oauth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE&state=SECURE_STATE_VALUE
+
+###
+
+### Test OAuth Callback - Missing Parameters
+GET http://localhost:8080/api/v1/auth/oauth/google/callback
+
+###
+
+### Test OAuth Callback - Invalid State
+GET http://localhost:8080/api/v1/auth/oauth/google/callback?code=test_code&state=invalid_state
+
+###
+
+### After OAuth Login - Get Profile
+### Use the access token received from OAuth callback
+GET http://localhost:8080/api/v1/auth/me
+Authorization: Bearer ACCESS_TOKEN_FROM_OAUTH_RESPONSE
+
+###
+
+### OAuth User - Get Tasks
+### OAuth users can access protected endpoints like regular users
+GET http://localhost:8080/api/v1/tasks
+Authorization: Bearer ACCESS_TOKEN_FROM_OAUTH_RESPONSE
+
+###
+
+### OAuth User - Create Task
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN_FROM_OAUTH_RESPONSE
+
+{
+  "title": "Task created by OAuth user",
+  "description": "This task was created by a user who logged in via Google OAuth"
+}

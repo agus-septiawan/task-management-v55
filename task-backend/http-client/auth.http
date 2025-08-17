@@ -1,0 +1,133 @@
+### Task Management API - Authentication Endpoints
+### Base URL: http://localhost:8080
+
+### Health Check
+GET http://localhost:8080/health
+
+###
+
+### Register User
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+###
+
+### Register Admin User
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+###
+
+### Login User
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+###
+
+### Login Admin
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+###
+
+### Get User Profile (requires Bearer token from login response)
+GET http://localhost:8080/api/v1/auth/me
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Refresh Token
+POST http://localhost:8080/api/v1/auth/refresh
+Cookie: refresh_token=YOUR_REFRESH_TOKEN_HERE
+
+###
+
+### Logout
+POST http://localhost:8080/api/v1/auth/logout
+
+###
+
+### Get All Users (Admin only)
+GET http://localhost:8080/api/v1/admin/users
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN_HERE
+
+###
+
+### Get All Users with Pagination (Admin only)
+GET http://localhost:8080/api/v1/admin/users?page=1&limit=5
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN_HERE
+
+###
+
+### Google OAuth Login - Step 1: Redirect to Google
+### This will redirect you to Google OAuth consent screen
+### Copy the URL and open in browser, then copy the callback URL
+GET http://localhost:8080/api/v1/auth/oauth/google
+
+###
+
+### Google OAuth Callback - Step 2: Handle callback
+### Replace with actual code and state from Google callback
+GET http://localhost:8080/api/v1/auth/oauth/google/callback?code=GOOGLE_AUTH_CODE&state=SECURE_STATE
+
+###
+
+### Test Invalid Registration - Missing Fields
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###
+
+### Test Invalid Login - Wrong Credentials
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+###
+
+### Test Unauthorized Access
+GET http://localhost:8080/api/v1/auth/me
+
+###
+
+### Test Invalid Token
+GET http://localhost:8080/api/v1/auth/me
+Authorization: Bearer invalid-token
+
+###
+
+### Test Admin Access with User Token
+GET http://localhost:8080/api/v1/admin/users
+Authorization: Bearer USER_ACCESS_TOKEN_HERE
