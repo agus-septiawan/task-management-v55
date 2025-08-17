@@ -49,14 +49,15 @@ func (h *OAuthHandler) handleOAuthRedirect(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Store state in session/cookie for validation
+	// Use more permissive cookie settings for development
 	http.SetCookie(w, &http.Cookie{
 		Name:     "oauth_state",
 		Value:    state,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   false,                            // Set to false for development (HTTP)
+		SameSite: http.SameSiteLaxMode,             // Changed to Lax for better compatibility
 		Expires:  time.Now().Add(10 * time.Minute), // Short-lived
-		Path:     "/api/v1/auth/oauth",
+		Path:     "/",                              // Changed to root path for better accessibility
 	})
 
 	// Get authorization URL
@@ -76,15 +77,26 @@ func (h *OAuthHandler) handleOAuthCallback(w http.ResponseWriter, r *http.Reques
 	code := r.URL.Query().Get("code")
 	state := r.URL.Query().Get("state")
 
-	if code == "" || state == "" {
-		response.Error(w, http.StatusBadRequest, "Missing code or state parameter")
+	if code == "" {
+		response.Error(w, http.StatusBadRequest, "Missing authorization code")
+		return
+	}
+
+	if state == "" {
+		response.Error(w, http.StatusBadRequest, "Missing state parameter")
 		return
 	}
 
 	// Validate state parameter
 	stateCookie, err := r.Cookie("oauth_state")
-	if err != nil || stateCookie.Value != state {
-		response.Error(w, http.StatusBadRequest, "Invalid state parameter")
+	if err != nil {
+		// Log the error for debugging
+		response.Error(w, http.StatusBadRequest, "State cookie not found. Please try logging in again.")
+		return
+	}
+
+	if stateCookie.Value != state {
+		response.Error(w, http.StatusBadRequest, "Invalid state parameter. Please try logging in again.")
 		return
 	}
 
@@ -93,10 +105,10 @@ func (h *OAuthHandler) handleOAuthCallback(w http.ResponseWriter, r *http.Reques
 		Name:     "oauth_state",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   false, // Match the original cookie settings
+		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(-time.Hour),
-		Path:     "/api/v1/auth/oauth",
+		Path:     "/",
 	})
 
 	// Get OAuth provider
@@ -125,13 +137,18 @@ func (h *OAuthHandler) handleOAuthCallback(w http.ResponseWriter, r *http.Reques
 		Name:     "refresh_token",
 		Value:    authResp.RefreshToken,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   false, // Set to false for development
+		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(168 * time.Hour), // 7 days
 		Path:     "/api/v1/auth",
 	})
 
-	response.JSON(w, http.StatusOK, authResp)
+	// For development, we can redirect to frontend with token in URL
+	// In production, you might want to use a different approach
+	frontendURL := "http://localhost:3000/auth/callback"
+	redirectURL := frontendURL + "?token=" + authResp.AccessToken + "&success=true"
+
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 // generateSecureState generates a secure random state parameter

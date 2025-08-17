@@ -46,45 +46,35 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
-import { useApi } from '@/composables/useApi';
 import { STORAGE_KEYS } from '@/utils/constants';
-import type { AuthResponse } from '@/types/api';
 
 const route = useRoute();
 const router = useRouter();
 const { initAuth } = useAuth();
-const { get } = useApi();
 
 const loading = ref(true);
 const error = ref('');
 
 onMounted(async () => {
   try {
-    const code = route.query.code as string;
-    const state = route.query.state as string;
+    const token = route.query.token as string;
+    const success = route.query.success as string;
 
-    if (!code || !state) {
-      throw new Error('Missing authentication parameters');
+    if (!token || success !== 'true') {
+      throw new Error('Authentication failed or missing token');
     }
 
-    // Call OAuth callback endpoint
-    const result = await get<AuthResponse>(`/auth/oauth/google/callback?code=${code}&state=${state}`);
+    // Store the token directly (it comes from backend redirect)
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
 
-    if (result.ok && result.data.access_token && result.data.user) {
-      // Store token and user
-      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, result.data.access_token);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.data.user));
+    // Initialize auth state (this will fetch user profile)
+    initAuth();
 
-      // Initialize auth state
-      initAuth();
+    // Wait a moment for auth to initialize, then redirect
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 1500);
 
-      // Redirect to dashboard
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1500);
-    } else {
-      throw new Error('Authentication failed');
-    }
   } catch (err) {
     console.error('OAuth callback error:', err);
     error.value = err instanceof Error ? err.message : 'Authentication failed';
