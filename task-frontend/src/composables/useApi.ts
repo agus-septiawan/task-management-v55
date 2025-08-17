@@ -32,7 +32,10 @@ export function useApi() {
         ? endpoint
         : `${API_BASE_URL}${endpoint}`
 
+      console.log(`Making API request to: ${url}`) // Debug log
+
       const response = await fetch(url, {
+        ...options,
         headers: {
           ...getAuthHeaders(),
           ...options.headers,
@@ -45,7 +48,9 @@ export function useApi() {
       if (contentType && contentType.includes('application/json')) {
         data = await response.json()
       } else {
-        data = {} as ApiResponse<T>
+        // Handle non-JSON responses
+        const text = await response.text()
+        data = { error: text } as ApiResponse<T>
       }
 
       const result: ApiRequestResult<T> = {
@@ -57,7 +62,9 @@ export function useApi() {
 
       if (!response.ok) {
         const errorMessage =
-          data.message || data.error || `HTTP ${response.status}`
+          data.message ||
+          data.error ||
+          `HTTP ${response.status}: ${response.statusText}`
         error.value = errorMessage
 
         // Handle 401 Unauthorized
@@ -65,7 +72,15 @@ export function useApi() {
           localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
           localStorage.removeItem(STORAGE_KEYS.USER)
           window.location.href = '/login'
+          return result
         }
+
+        console.error('API Error:', {
+          url,
+          status: response.status,
+          error: errorMessage,
+          data,
+        })
 
         throw new Error(errorMessage)
       }
@@ -74,7 +89,18 @@ export function useApi() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Network error'
       error.value = errorMessage
-      notifications.error(errorMessage)
+
+      console.error('API Request failed:', {
+        endpoint,
+        error: errorMessage,
+        originalError: err,
+      })
+
+      // Don't show notification for auth errors to avoid spam
+      if (!endpoint.includes('/auth/')) {
+        notifications.error(errorMessage)
+      }
+
       throw err
     } finally {
       loading.value = false
