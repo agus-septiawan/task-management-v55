@@ -91,7 +91,7 @@ const router = createRouter({
 })
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const { isAuthenticated, isAdmin } = useAuth()
 
   // Check if route requires authentication
