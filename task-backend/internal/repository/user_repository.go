@@ -30,7 +30,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 // Create membuat user baru
 func (r *userRepository) Create(user *model.User) error {
 	var hashedPassword *string
-	
+
 	// Hash password only if provided (not for OAuth users)
 	if user.Password != "" {
 		hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -69,14 +69,18 @@ func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 	`
 
 	var user model.User
+	var password sql.NullString
+	var oauthProvider sql.NullString
+	var oauthID sql.NullString
+
 	err := r.db.QueryRow(query, email).Scan(
 		&user.ID,
 		&user.Email,
 		&user.Name,
-		&user.Password,
+		&password,
 		&user.Role,
-		&user.OauthProvider,
-		&user.OauthID,
+		&oauthProvider,
+		&oauthID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -88,6 +92,17 @@ func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
 
+	if password.Valid {
+		user.Password = password.String
+	}
+
+	if oauthProvider.Valid {
+		user.OauthProvider = &oauthProvider.String
+	}
+
+	if oauthID.Valid {
+		user.OauthID = &oauthID.String
+	}
 	return &user, nil
 }
 
@@ -100,14 +115,18 @@ func (r *userRepository) GetByID(id int) (*model.User, error) {
 	`
 
 	var user model.User
+	var password sql.NullString
+	var oauthProvider sql.NullString
+	var oauthID sql.NullString
+
 	err := r.db.QueryRow(query, id).Scan(
 		&user.ID,
 		&user.Email,
 		&user.Name,
-		&user.Password,
+		&password,
 		&user.Role,
-		&user.OauthProvider,
-		&user.OauthID,
+		&oauthProvider,
+		&oauthID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -119,6 +138,17 @@ func (r *userRepository) GetByID(id int) (*model.User, error) {
 		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 
+	if password.Valid {
+		user.Password = password.String
+	}
+
+	if oauthProvider.Valid {
+		user.OauthProvider = &oauthProvider.String
+	}
+
+	if oauthID.Valid {
+		user.OauthID = &oauthID.String
+	}
 	return &user, nil
 }
 
@@ -132,15 +162,17 @@ func (r *userRepository) GetByOAuth(provider, oauthID string) (*model.User, erro
 
 	var user model.User
 	var password sql.NullString
-	
+	var oauthProvider sql.NullString
+	var oauthIDField sql.NullString
+
 	err := r.db.QueryRow(query, provider, oauthID).Scan(
 		&user.ID,
 		&user.Email,
 		&user.Name,
 		&password,
 		&user.Role,
-		&user.OauthProvider,
-		&user.OauthID,
+		&oauthProvider,
+		&oauthIDField,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -156,6 +188,13 @@ func (r *userRepository) GetByOAuth(provider, oauthID string) (*model.User, erro
 		user.Password = password.String
 	}
 
+	if oauthProvider.Valid {
+		user.OauthProvider = &oauthProvider.String
+	}
+
+	if oauthIDField.Valid {
+		user.OauthID = &oauthIDField.String
+	}
 	return &user, nil
 }
 
@@ -180,19 +219,31 @@ func (r *userRepository) GetAll(page, limit int) ([]model.User, int, error) {
 	var users []model.User
 	for rows.Next() {
 		var user model.User
+		var oauthProvider sql.NullString
+		var oauthID sql.NullString
+
 		err := rows.Scan(
 			&user.ID,
 			&user.Email,
 			&user.Name,
 			&user.Role,
-			&user.OauthProvider,
-			&user.OauthID,
+			&oauthProvider,
+			&oauthID,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan user: %w", err)
 		}
+
+		if oauthProvider.Valid {
+			user.OauthProvider = &oauthProvider.String
+		}
+
+		if oauthID.Valid {
+			user.OauthID = &oauthID.String
+		}
+
 		users = append(users, user)
 	}
 

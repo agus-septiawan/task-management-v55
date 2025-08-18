@@ -1,1 +1,4 @@
-node_modules/
+task-frontend/node_modules/
+task-frontend/dist/
+scripts-vps/
+scripts-vps-v2/

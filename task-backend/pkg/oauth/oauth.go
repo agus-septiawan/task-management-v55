@@ -105,8 +105,7 @@ func (g *GoogleProvider) GetUserInfo(code, state string) (*OAuthUser, error) {
 
 	// Convert map to CustomParams
 	params := CustomParams{
-		"code":  code,
-		"state": state,
+		"code": code,
 	}
 
 	// Complete the auth process
