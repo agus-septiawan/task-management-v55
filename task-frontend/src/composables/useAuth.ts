@@ -17,7 +17,7 @@ export function useAuth() {
   const { post, get } = useApi()
 
   // Initialize user from localStorage
-  const initAuth = () => {
+  const initAuth = async (): Promise<boolean> => {
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER)
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
 
@@ -25,18 +25,20 @@ export function useAuth() {
       if (storedUser) {
         try {
           user.value = JSON.parse(storedUser)
+          return true
         } catch (error) {
           console.error('Error parsing stored user:', error)
           // If user data is corrupted, fetch fresh profile
-          getProfile()
+          return (await getProfile()) !== null
         }
       } else {
         // If we have token but no user data, fetch profile
-        getProfile()
+        return (await getProfile()) !== null
       }
     } else {
       // No token, clear everything
       logout()
+      return false
     }
   }
 

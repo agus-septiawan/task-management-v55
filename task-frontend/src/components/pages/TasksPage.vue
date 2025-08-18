@@ -160,7 +160,7 @@ const {
 
 // Local state
 const searchQuery = ref('');
-const statusFilter = ref('');
+const statusFilter = ref<TaskStatus | ''>('');
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -184,7 +184,7 @@ const handleFilterChange = () => {
   fetchTasks({
     page: 1,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };
@@ -214,7 +214,7 @@ const handleDeleteConfirm = async () => {
     fetchTasks({
       page: currentPage.value,
       limit: limit.value,
-      status: statusFilter.value || undefined,
+      status: statusFilter.value === '' ? undefined : statusFilter.value,
       search: searchQuery.value || undefined,
     });
   }
@@ -226,7 +226,7 @@ const handleTaskCreated = () => {
   fetchTasks({
     page: 1,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };
@@ -238,7 +238,7 @@ const handleTaskUpdated = () => {
   fetchTasks({
     page: currentPage.value,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };

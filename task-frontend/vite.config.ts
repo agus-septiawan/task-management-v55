@@ -10,6 +10,9 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  define: {
+    'import.meta.env': 'import.meta.env',
+  },
   server: {
     port: 3000,
     proxy: {

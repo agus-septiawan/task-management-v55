@@ -179,8 +179,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { Task } from '@/types/api';
+import type { TaskStatus } from '@/types/api';
 import { useTasks } from '@/composables/useTasks';
 import { formatDate, getTaskStatusLabel, getTaskStatusClass, truncateText, debounce } from '@/utils/helpers';
 import CreateTaskModal from '@/components/common/CreateTaskModal.vue';
@@ -205,7 +206,7 @@ const {
 
 // Local state
 const searchQuery = ref('');
-const statusFilter = ref('');
+const statusFilter = ref<TaskStatus | ''>('');
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -233,7 +234,7 @@ const handleFilterChange = () => {
   fetchTasks({
     page: 1,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };
@@ -263,7 +264,7 @@ const handleDeleteConfirm = async () => {
     fetchTasks({
       page: currentPage.value,
       limit: limit.value,
-      status: statusFilter.value || undefined,
+      status: statusFilter.value === '' ? undefined : statusFilter.value,
       search: searchQuery.value || undefined,
     });
   }
@@ -275,7 +276,7 @@ const handleTaskCreated = () => {
   fetchTasks({
     page: 1,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };
@@ -287,7 +288,7 @@ const handleTaskUpdated = () => {
   fetchTasks({
     page: currentPage.value,
     limit: limit.value,
-    status: statusFilter.value || undefined,
+    status: statusFilter.value === '' ? undefined : statusFilter.value,
     search: searchQuery.value || undefined,
   });
 };

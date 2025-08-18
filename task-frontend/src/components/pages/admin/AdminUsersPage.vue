@@ -132,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useUsers } from '@/composables/useUsers';
 import { formatDate } from '@/utils/helpers';
 

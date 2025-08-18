@@ -41,10 +41,11 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { notifications } from '@/utils/notifications';
 
 const route = useRoute();
 const router = useRouter();
-const { initAuth } = useAuth();
+const { getProfile } = useAuth();
 
 const loading = ref(true);
 const error = ref('');
@@ -61,14 +62,15 @@ onMounted(async () => {
     // Store the token directly (it comes from backend redirect)
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
 
-    // Initialize auth state (this will fetch user profile)
-    const authSuccessful = await initAuth();
+    // Fetch user profile to complete authentication
+    const user = await getProfile();
 
-    if (authSuccessful) {
-      router.push('/dashboard');
-    } else {
+    if (!user) {
       throw new Error('Authentication failed: Could not retrieve user profile.');
     }
+
+    notifications.success('Login berhasil!');
+    router.push('/dashboard');
 
   } catch (err) {
     console.error('OAuth callback error:', err);
