@@ -25,13 +25,13 @@ jobs:
           echo "🚀 Starting deployment..."
 
           # Check if deployment script exists
-          if [ ! -f "/opt/scripts/deploy-task-management-golang.sh" ]; then
+          if [ ! -f "/opt/scripts/deploy-task-management.sh" ]; then
             echo "❌ Deployment script not found at /opt/scripts/deploy-task-management-golang.sh"
             exit 1
           fi
 
           # Make script executable and run it
-          sudo chmod +x /opt/scripts/deploy-task-management-golang.sh
+          sudo chmod +x /opt/scripts/deploy-task-management.sh
           sudo /opt/scripts/deploy-task-management-golang.sh
 
           echo "✅ Deployment completed!"
