@@ -9,6 +9,12 @@ export interface ApiResponse<T = any> {
   user?: User
 }
 
+// For direct API responses (when T is the actual data)
+export type DirectApiResponse<T = any> = T & {
+  error?: string
+  message?: string
+}
+
 export interface PagingInfo {
   page: number
   limit: number

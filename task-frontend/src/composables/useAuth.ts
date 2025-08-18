@@ -129,10 +129,12 @@ export function useAuth() {
     try {
       const result = await get<User>('/auth/me')
 
-      if (result.ok && result.data) {
-        user.value = result.data
-        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.data))
-        return result.data
+      if (result.ok) {
+        // The API returns the user directly, not wrapped in a data object
+        const userData = result.data as User
+        user.value = userData
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
+        return userData
       }
 
       return null

@@ -36,11 +36,13 @@ export function useUsers() {
 
       const result = await get<UsersResponse>(endpoint)
 
-      if (result.ok && result.data) {
-        users.value = result.data.users || []
-        total.value = result.data.total || 0
-        currentPage.value = result.data.page || 1
-        limit.value = result.data.limit || 10
+      if (result.ok) {
+        // The API returns the UsersResponse directly
+        const usersData = result.data as UsersResponse
+        users.value = usersData.users || []
+        total.value = usersData.total || 0
+        currentPage.value = usersData.page || 1
+        limit.value = usersData.limit || 10
       }
     } catch (error) {
       console.error('Fetch users error:', error)

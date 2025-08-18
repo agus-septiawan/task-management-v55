@@ -47,11 +47,13 @@ export function useTasks() {
 
       const result = await get<TasksResponse>(endpoint)
 
-      if (result.ok && result.data) {
-        tasks.value = result.data.tasks || []
-        total.value = result.data.total || 0
-        currentPage.value = result.data.page || 1
-        limit.value = result.data.limit || 10
+      if (result.ok) {
+        // The API returns the TasksResponse directly
+        const tasksData = result.data as TasksResponse
+        tasks.value = tasksData.tasks || []
+        total.value = tasksData.total || 0
+        currentPage.value = tasksData.page || 1
+        limit.value = tasksData.limit || 10
       }
     } catch (error) {
       console.error('Fetch tasks error:', error)
@@ -65,7 +67,7 @@ export function useTasks() {
   const getTask = async (id: number): Promise<Task | null> => {
     try {
       const result = await get<Task>(`/tasks/${id}`)
-      return result.ok && result.data ? result.data : null
+      return result.ok ? (result.data as Task) : null
     } catch (error) {
       console.error('Get task error:', error)
       return null
@@ -79,11 +81,11 @@ export function useTasks() {
     try {
       const result = await post<Task>('/tasks', taskData)
 
-      if (result.ok && result.data) {
+      if (result.ok) {
         notifications.success('Task berhasil dibuat!')
         // Refresh tasks list
         await fetchTasks({ page: currentPage.value, limit: limit.value })
-        return result.data
+        return result.data as Task
       }
 
       return null
@@ -101,16 +103,17 @@ export function useTasks() {
     try {
       const result = await put<Task>(`/tasks/${id}`, taskData)
 
-      if (result.ok && result.data) {
+      if (result.ok) {
         notifications.success('Task berhasil diupdate!')
 
         // Update task in local array
+        const updatedTask = result.data as Task
         const index = tasks.value.findIndex((task) => task.id === id)
         if (index !== -1) {
-          tasks.value[index] = result.data
+          tasks.value[index] = updatedTask
         }
 
-        return result.data
+        return updatedTask
       }
 
       return null

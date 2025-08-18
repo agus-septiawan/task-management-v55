@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { Task } from '@/types/api';
+import type { Task, TaskStatus } from '@/types/api';
 import { useTasks } from '@/composables/useTasks';
 import { formatDate, getTaskStatusLabel, getTaskStatusClass, debounce } from '@/utils/helpers';
 import CreateTaskModal from '@/components/common/CreateTaskModal.vue';
