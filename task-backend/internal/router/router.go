@@ -3,17 +3,18 @@ package router
 import (
 	"net/http"
 
+	"github.com/Mahathirrr/task-management-backend/internal/config"
 	"github.com/Mahathirrr/task-management-backend/internal/handler"
 	"github.com/Mahathirrr/task-management-backend/internal/middleware"
 	"github.com/Mahathirrr/task-management-backend/pkg/jwt"
 	"github.com/gorilla/mux"
 )
 
-func SetupRoutes(authHandler *handler.AuthHandler, oauthHandler *handler.OAuthHandler, taskHandler *handler.TaskHandler, adminHandler *handler.AdminHandler, jwtManager *jwt.JWTManager) http.Handler {
+func SetupRoutes(authHandler *handler.AuthHandler, oauthHandler *handler.OAuthHandler, taskHandler *handler.TaskHandler, adminHandler *handler.AdminHandler, jwtManager *jwt.JWTManager, corsConfig *config.CORSConfig) http.Handler {
 	r := mux.NewRouter()
 
 	// Apply global middleware - CORS must be first
-	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.CORSMiddleware(corsConfig))
 	r.Use(middleware.LoggingMiddleware())
 
 	// Health check endpoint (before API routes)

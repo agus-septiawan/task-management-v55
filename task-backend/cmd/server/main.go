@@ -59,7 +59,7 @@ func main() {
 	adminHandler := handler.NewAdminHandler(userService)
 
 	// Setup routes
-	routerHandler := router.SetupRoutes(authHandler, oauthHandler, taskHandler, adminHandler, jwtManager)
+	routerHandler := router.SetupRoutes(authHandler, oauthHandler, taskHandler, adminHandler, jwtManager, &cfg.CORS)
 
 	// Start server
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)

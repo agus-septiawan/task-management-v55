@@ -3,19 +3,23 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/Mahathirrr/task-management-backend/internal/config"
 	"github.com/gorilla/handlers"
 )
 
-// CORSMiddleware sets up the CORS handling using gorilla/handlers.
-func CORSMiddleware() func(http.Handler) http.Handler {
-	// Define allowed origins, methods, and headers
-	// Allow specific origins for better security and cookie handling
-	allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
-	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "Authorization", "X-Requested-With"})
-	allowCredentials := handlers.AllowCredentials()
-	maxAge := handlers.MaxAge(86400)
+// CORSMiddleware sets up the CORS handling using gorilla/handlers with configurable options.
+func CORSMiddleware(corsConfig *config.CORSConfig) func(http.Handler) http.Handler {
+	// Use configuration values for CORS settings
+	allowedOrigins := handlers.AllowedOrigins(corsConfig.AllowedOrigins)
+	allowedMethods := handlers.AllowedMethods(corsConfig.AllowedMethods)
+	allowedHeaders := handlers.AllowedHeaders(corsConfig.AllowedHeaders)
+	maxAge := handlers.MaxAge(corsConfig.MaxAge)
 
-	// Return the CORS middleware handler
-	return handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders, allowCredentials, maxAge)
+	// Conditionally add credentials support
+	if corsConfig.AllowCredentials {
+		allowCredentials := handlers.AllowCredentials()
+		return handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders, allowCredentials, maxAge)
+	}
+
+	return handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders, maxAge)
 }

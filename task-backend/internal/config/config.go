@@ -11,6 +11,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	OAuth    OAuthConfig
+	CORS     CORSConfig
 }
 
 type ServerConfig struct {
@@ -43,6 +44,14 @@ type OAuthConfig struct {
 	Google OAuthProvider `mapstructure:"google"`
 }
 
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowed_origins"`
+	AllowedMethods   []string `mapstructure:"allowed_methods"`
+	AllowedHeaders   []string `mapstructure:"allowed_headers"`
+	AllowCredentials bool     `mapstructure:"allow_credentials"`
+	MaxAge           int      `mapstructure:"max_age"`
+}
+
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -55,6 +64,13 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("jwt.access_expire", "30m")
 	viper.SetDefault("jwt.refresh_expire", "168h")
 	viper.SetDefault("oauth.google.redirect_url", "http://localhost:8080/api/v1/auth/oauth/google/callback")
+
+	// CORS defaults
+	viper.SetDefault("cors.allowed_origins", []string{"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
+	viper.SetDefault("cors.allowed_methods", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	viper.SetDefault("cors.allowed_headers", []string{"Content-Type", "Authorization", "X-Requested-With"})
+	viper.SetDefault("cors.allow_credentials", true)
+	viper.SetDefault("cors.max_age", 86400)
 
 	// Allow environment variables
 	viper.AutomaticEnv()
