@@ -31,26 +31,30 @@ Backend API untuk sistem manajemen task dengan fitur authentication, authorizati
 ## 🔧 Installation
 
 1. **Clone repository**
+
    ```bash
    git clone <repository-url>
    cd task-management-backend
    ```
 
 2. **Install dependencies**
+
    ```bash
    go mod download
    ```
 
 3. **Setup database**
+
    ```bash
    # Menggunakan Docker (recommended)
    make docker-up
-   
+
    # Atau install MySQL manual dan buat database
    CREATE DATABASE task_manager;
    ```
 
 4. **Run database migrations**
+
    ```bash
    # Manual migration
    mysql -u root -p task_manager < migrations/20250816103214_create_users_table.up.sql
@@ -98,6 +102,7 @@ make test-int
 ## 📡 API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/login` - User login
 - `POST /api/v1/auth/refresh` - Refresh access token
@@ -105,9 +110,11 @@ make test-int
 - `GET /api/v1/auth/me` - Get user profile
 
 ### Admin (Admin only)
+
 - `GET /api/v1/admin/users` - Get all users
 
 ### Health Check
+
 - `GET /health` - Server health status
 
 ## 📖 API Documentation
@@ -164,31 +171,40 @@ Konfigurasi aplikasi menggunakan file `configs/config.yaml`:
 
 ```yaml
 server:
-  port: "8080"
-  host: "localhost"
+  port: '8080'
+  host: 'localhost'
 
 database:
-  host: "localhost"
-  port: "3306"
-  name: "task_manager"
-  user: "root"
-  password: "password"
+  host: 'localhost'
+  port: '3306'
+  name: 'task_manager'
+  user: 'root'
+  password: 'password'
 
 jwt:
-  access_secret: "your-secret-key"
-  refresh_secret: "your-refresh-secret"
-  access_expire: "30m"
-  refresh_expire: "168h"
+  access_secret: 'your-secret-key'
+  refresh_secret: 'your-refresh-secret'
+  access_expire: '30m'
+  refresh_expire: '168h'
 ```
 
 ## 🚀 Deployment
 
 1. **Build aplikasi**
-   ```bash
-   make build
-   ```
+
+cors:
+allowed_origins: - "http://localhost:3000" - "http://localhost:5173" - "https://yourdomain.com"
+allowed_methods: - "GET" - "POST" - "PUT" - "DELETE" - "OPTIONS"
+allowed_headers: - "Content-Type" - "Authorization" - "X-Requested-With"
+allow_credentials: true
+max_age: 86400
+
+```bash
+make build
+```
 
 2. **Setup production database**
+
    - Buat database MySQL
    - Jalankan migrations
    - Update konfigurasi
@@ -213,15 +229,18 @@ MIT License - lihat file LICENSE untuk detail.
 ## 🆘 Troubleshooting
 
 ### Database Connection Error
+
 - Pastikan MySQL running
 - Cek konfigurasi database di `configs/config.yaml`
 - Pastikan database `task_manager` sudah dibuat
 
 ### JWT Token Error
+
 - Pastikan JWT secrets dikonfigurasi
 - Cek format Authorization header: `Bearer <token>`
 
 ### Migration Error
+
 - Pastikan database sudah dibuat
 - Jalankan migrations secara berurutan
 - Cek permission database user
