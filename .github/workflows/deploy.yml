@@ -25,13 +25,13 @@ jobs:
           echo "🚀 Starting deployment..."
 
           # Check if deployment script exists
-          if [ ! -f "/opt/scripts/deploy-task-management.sh" ]; then
-            echo "❌ Deployment script not found at /opt/scripts/deploy-task-management.sh"
+          if [ ! -f "/opt/scripts/deploy-task-management-domain.sh" ]; then
+            echo "❌ Deployment script not found at /opt/scripts/deploy-task-management-domain.sh"
             exit 1
           fi
 
           # Make script executable and run it
-          sudo chmod +x /opt/scripts/deploy-task-management.sh
-          sudo /opt/scripts/deploy-task-management.sh
+          sudo chmod +x /opt/scripts/deploy-task-management-domain.sh
+          sudo /opt/scripts/deploy-task-management-domain.sh
 
           echo "✅ Deployment completed!"
