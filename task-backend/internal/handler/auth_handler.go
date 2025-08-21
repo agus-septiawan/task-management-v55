@@ -53,7 +53,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Name:     "refresh_token",
 		Value:    authResp.RefreshToken,
 		HttpOnly: true,
-		Secure:   true, // Always secure for production
+		Secure:   false, // Always secure for production
 		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(168 * time.Hour), // 7 hari
 		Path:     "/api/v1/auth",
@@ -92,7 +92,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:     "refresh_token",
 		Value:    authResp.RefreshToken,
 		HttpOnly: true,
-		Secure:   true, // Always secure for production
+		Secure:   false, // Always secure for production
 		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(168 * time.Hour), // 7 hari
 		Path:     "/api/v1/auth",
@@ -127,7 +127,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		Name:     "refresh_token",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(-time.Hour), // Set expired
 		Path:     "/api/v1/auth",
