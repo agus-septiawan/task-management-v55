@@ -1,0 +1,70 @@
+server:
+  port: "8080"
+  host: "0.0.0.0"
+
+database:
+  host: "shortline.proxy.rlwy.net"
+  port: "22074"
+  name: "railway"
+  user: "root"
+  password: "hvNtQcpXPgUnNFwkwQZKtxsYjkDbyPhG"
+
+jwt:
+  access_secret: "your-super-secret-access-key-change-in-production"
+  refresh_secret: "your-super-secret-refresh-key-change-in-production"
+  access_expire: "30m"
+  refresh_expire: "168h"
+
+oauth:
+  google:
+    client_id: "686501927377-rqph9lq0q4hsjnv719j907gqi92fuj7o.apps.googleusercontent.com"
+    client_secret: "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"
+    redirect_url: "https://frontend-contact-management-production.up.railway.app/api/v1/auth/oauth/google/callback"
+
+frontend:
+  callback_url: "https://frontend-contact-management-production.up.railway.app/auth/callback"
+
+cors:
+  allowed_origins:
+    - "https://frontend-contact-management-production.up.railway.app"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Content-Type"
+    - "Authorization"
+    - "X-Requested-With"
+  allow_credentials: true
+  max_age: 86400
+
+# File Upload Configuration
+upload:
+  max_size: 5242880  # 5MB in bytes
+  allowed_types:
+    - "image/jpeg"
+    - "image/png"
+    - "image/gif"
+    - "image/webp"
+  temp_dir: "./shared/uploads/temp"
+  profiles_dir: "./shared/uploads/profiles"
+  thumbnails_dir: "./shared/uploads/thumbnails"
+  base_url: "https://frontend-contact-management-production.up.railway.app/uploads"
+
+# SMTP Configuration
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "mhmmdmhthr@gmail.com"
+  password: "lfcb yanz pvik uolv "
+  from_email: "noreply@showcase-project.my.id"
+  from_name: "Task Management System"
+  timeout: 30
+  tls: true
+
+# Password Reset Configuration
+password_reset:
+  token_expire: "60m"
+  frontend_url: "https://frontend-contact-management-production.up.railway.app"
