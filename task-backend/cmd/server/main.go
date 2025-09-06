@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Mahathirrr/task-management-backend/internal/config"
 	"github.com/Mahathirrr/task-management-backend/internal/database"
@@ -17,7 +18,6 @@ import (
 
 func main() {
 	// Load configuration
-
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -61,8 +61,15 @@ func main() {
 	// Setup routes
 	routerHandler := router.SetupRoutes(authHandler, oauthHandler, taskHandler, adminHandler, jwtManager, &cfg.CORS)
 
-	// Start server
-	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
+	// --- Server Config (lokal vs Railway) ---
+	port := os.Getenv("PORT") // Railway inject PORT
+	if port == "" {
+		port = cfg.Server.Port // fallback ke config (misal "8080") untuk lokal
+	}
+
+	// Selalu bind ke 0.0.0.0 agar bisa diakses di Railway
+	addr := fmt.Sprintf("0.0.0.0:%s", port)
+
 	log.Printf("Server starting on: %s", addr)
 	if err := http.ListenAndServe(addr, routerHandler); err != nil {
 		log.Fatal("Server failed to start: ", err)
