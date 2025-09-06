@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "go build -o server ./cmd/server/main.go"
+  },
+  "deploy": {
+    "startCommand": "./server"
+  }
+}
